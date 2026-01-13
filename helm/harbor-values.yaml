@@ -1,0 +1,98 @@
+expose:
+  type: ingress
+  tls:
+    enabled: true
+    certSource: secret
+    secret:
+      # This matches the secret cert-manager will create
+      secretName: harbor-tls-secret
+  ingress:
+    hosts:
+      core: harbor.mkbn.in
+    controller: traefik
+    annotations:
+      # Use cert-manager to automatically generate the cert
+      cert-manager.io/cluster-issuer: "harbor-ca-issuer"
+      kubernetes.io/ingress.class: traefik
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+
+externalURL: https://harbor.mkbn.in
+
+# Production-ready persistence (adjust storageClass as per your cluster)
+persistence:
+  enabled: true
+  resourcePolicy: "keep"
+  persistentVolumeClaim:
+    registry:
+      storageClass: "longhorn" # Change to your storage class (nfs, longhorn, etc)
+      size: 30Gi
+    jobservice:
+      storageClass: "longhorn"
+      size: 1Gi
+    database:
+      storageClass: "longhorn"
+      size: 5Gi
+    redis:
+      storageClass: "longhorn"
+      size: 1Gi
+
+# Database configuration
+database:
+  type: internal
+  internal:
+    password: DbP@ssw0rd!
+    
+# Redis configuration  
+redis:
+  type: internal
+  internal:
+    password: RedisP@ssw0rd!
+
+# Security settings
+harborAdminPassword: AdminP@ssw0rd!
+
+# Component settings
+trivy:
+  enabled: true
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1
+      memory: 1Gi
+
+notary:
+  enabled: true
+  
+jobservice:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Logging
+logLevel: info
+
+# Resource limits for core components
+core:
+  resources:
+    requests:
+      cpu: 500m
+      memory: 500Mi
+    limits:
+      cpu: 1
+      memory: 1Gi
+
+registry:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi

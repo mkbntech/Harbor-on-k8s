@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: harbor-ca-cert
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: harbor-internal-ca
+  secretName: harbor-ca-tls
+  issuerRef:
+    name: selfsigned-bootstrap
+    kind: ClusterIssuer
